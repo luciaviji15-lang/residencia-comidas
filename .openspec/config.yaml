@@ -1,0 +1,7 @@
+project: residencia-comidas
+version: 1.0.0
+tech_stack:
+  backend: NestJS
+  frontend: React + Mantine
+  database: PostgreSQL
+specs_path: .openspec/specs
