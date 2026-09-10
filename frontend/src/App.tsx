@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   TextInput, 
   PasswordInput, 
@@ -10,10 +10,14 @@ import {
   Checkbox, 
   Stack, 
   Group,
-  Notification
+  Notification,
+  Table,
+  List
 } from '@mantine/core';
 import { api } from './services/api';
 import AdminPanel from './components/AdminPanel';
+import KitchenPanel from './components/KitchenPanel';
+import { QRCodeSVG } from 'qrcode.react';
 
 export default function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
@@ -22,6 +26,11 @@ export default function App() {
   const [dni, setDni] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
+// ...
+  const [history, setHistory] = useState<any[]>([]);
+
+
 
   const [selection, setSelection] = useState({
     fridayDinner: false,
@@ -33,6 +42,27 @@ export default function App() {
   const [successMessage, setSuccessMessage] = useState('');
   const [qrToken, setQrToken] = useState('');
 
+
+  useEffect(() => {
+    if (user && user.role === 'STUDENT') {
+      console.log("Pidiendo historial para el usuario:", user.id);
+      
+      api.get(`/meals/history/${user.id}`)
+        .then(res => {
+          setHistory(res.data);
+          
+          // ¡LA MAGIA AQUÍ! Si el alumno ya tiene fichas, cargamos la última automáticamente
+          if (res.data && res.data.length > 0) {
+            setQrToken(res.data[0].qrCodeToken); // Mostramos el QR guardado
+            setSelection(res.data[0].selection); // Rellenamos las casillas con lo que pidió
+          }
+        })
+        .catch(err => {
+          console.error("Error al cargar historial:", err);
+        });
+    }
+  }, [user, successMessage]);
+  
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -93,9 +123,14 @@ export default function App() {
     );
   }
 
-  if (user?.role === 'ADMIN') {
+if (user?.role === 'ADMIN') {
     return <AdminPanel onLogout={handleLogout} />;
   }
+
+  if (user?.role === 'KITCHEN') {
+    return <KitchenPanel onLogout={handleLogout} />;
+  }
+
 
   return (
     <Container size={600} my={40}>
@@ -106,6 +141,36 @@ export default function App() {
         </div>
         <Button color="red" variant="outline" onClick={handleLogout}>Cerrar sesión</Button>
       </Group>
+
+      <Paper withBorder shadow="sm" p="md" radius="md" mb="xl">
+        <Title order={4} mb="sm">Menú de este fin de semana</Title>
+        <Table striped highlightOnHover>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Día</Table.Th>
+              <Table.Th>Comida (14:00)</Table.Th>
+              <Table.Th>Cena (21:00)</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            <Table.Tr>
+              <Table.Td fw={500}>Viernes</Table.Td>
+              <Table.Td c="dimmed">-</Table.Td>
+              <Table.Td>Pizza casera y ensalada</Table.Td>
+            </Table.Tr>
+            <Table.Tr>
+              <Table.Td fw={500}>Sábado</Table.Td>
+              <Table.Td>Macarrones gratinados y lomo</Table.Td>
+              <Table.Td>Sopa, tortilla de patatas</Table.Td>
+            </Table.Tr>
+            <Table.Tr>
+              <Table.Td fw={500}>Domingo</Table.Td>
+              <Table.Td>Paella mixta</Table.Td>
+              <Table.Td>Hamburguesa con patatas</Table.Td>
+            </Table.Tr>
+          </Table.Tbody>
+        </Table>
+      </Paper>
 
       <Paper withBorder shadow="md" p={30} radius="md">
         <Title order={3} mb="md">Selección de Comidas</Title>
@@ -147,11 +212,57 @@ export default function App() {
         </form>
 
         {qrToken && (
-          <Paper mt="xl" p="md" bg="gray.1" radius="sm">
-            <Text fw={500} ta="center">Tu Token QR de Acceso:</Text>
-            <Text ta="center" size="sm" ff="monospace" mt={5}>{qrToken}</Text>
+          <Paper mt="xl" p="lg" bg="gray.0" radius="md" withBorder>
+            <Title order={4} ta="center" mb="md">Tu Pase de Comedor 🎫</Title>
+            
+            {/* Aquí generamos el cuadradito negro del QR */}
+            <Group justify="center" mb="md">
+              <QRCodeSVG 
+                value={qrToken} 
+                size={180} 
+                bgColor={"#ffffff"}
+                fgColor={"#000000"}
+                level={"H"} // Nivel alto de corrección de errores
+              />
+            </Group>
+            
+            {/* Dejamos el texto por si el lector falla y hay que teclearlo a mano */}
+            <Text ta="center" size="xs" c="dimmed" tt="uppercase">Código manual (en caso de fallo del lector)</Text>
+            <Text ta="center" size="sm" ff="monospace" fw={600}>{qrToken}</Text>
           </Paper>
         )}
+
+        {history.length > 0 && (
+          <Paper mt="xl" p="md" withBorder radius="md">
+            <Title order={4} mb="sm">Tus Fichas Guardadas</Title>
+            
+            {history.map((sub, index) => (
+              <Paper key={index} withBorder p="sm" mb="sm" bg="gray.0">
+                <Text fw={600} mb="xs">
+                  Ficha actual (QR: {sub.qrCodeToken ? sub.qrCodeToken.substring(0, 8) : '---'})
+                </Text>
+                
+                <List size="sm" spacing="xs" icon="🍽️">
+                  {/* Recorremos el objeto selection y mostramos solo los que están a true */}
+                  {Object.entries(sub.selection)
+                    .filter(([key, value]) => value === true)
+                    .map(([key]) => {
+                      // Diccionario para traducir del inglés de la base de datos a español
+                      const nombresComidas: Record<string, string> = {
+                        fridayDinner: 'Viernes - Cena',
+                        saturdayLunch: 'Sábado - Comida',
+                        saturdayDinner: 'Sábado - Cena',
+                        sundayLunch: 'Domingo - Comida',
+                        sundayDinner: 'Domingo - Cena'
+                      };
+                      return <List.Item key={key}>{nombresComidas[key]}</List.Item>;
+                    })}
+                </List>
+              </Paper>
+            ))}
+          </Paper>
+        )}
+
       </Paper>
     </Container>
   );

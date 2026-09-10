@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { MealsService } from './meals.service.js';
 
 @Controller('meals')
@@ -13,5 +13,20 @@ export class MealsController {
   @Get('admin/summary')
   async getMealSummary() {
     return this.mealsService.findAllSubmissions();
+  }
+
+  @Get('history/:userId')
+  async getUserHistory(@Param('userId') userId: string) {
+    return this.mealsService.getUserHistory(userId);
+  }
+
+  @Get('admin/all')
+  async getAllSubmissions() {
+    return this.mealsService.findAllSubmissions();
+  }
+
+  @Get('validate/:qrToken')
+  async validateQr(@Param('qrToken') qrToken: string) {
+    return this.mealsService.validateQr(qrToken);
   }
 }

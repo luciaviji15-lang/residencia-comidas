@@ -12,6 +12,10 @@ export class MealSubmission {
   @Column()
   userId: string;
 
+  // ¡ESTA ES LA ÚNICA COLUMNA NUEVA!
+  @Column({ default: '2026-W00' })
+  weekId: string;
+
   @Column({ type: 'jsonb' })
   selection: {
     fridayDinner: boolean;
