@@ -17,6 +17,7 @@ import {
 import { api } from './services/api';
 import AdminPanel from './components/AdminPanel';
 import KitchenPanel from './components/KitchenPanel';
+import StudentPanel from './components/StudentPanel';
 import { QRCodeSVG } from 'qrcode.react';
 
 export default function App() {
@@ -141,6 +142,7 @@ if (user?.role === 'ADMIN') {
         </div>
         <Button color="red" variant="outline" onClick={handleLogout}>Cerrar sesión</Button>
       </Group>
+      <StudentPanel user={user} />
 
       <Paper withBorder shadow="sm" p="md" radius="md" mb="xl">
         <Title order={4} mb="sm">Menú de este fin de semana</Title>

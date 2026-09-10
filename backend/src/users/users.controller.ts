@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Param, Patch } from '@nestjs/common';
 import { UsersService } from './users.service.js';
 import { UserRole } from './user.entity.js';
 
@@ -27,5 +27,10 @@ export class UsersController {
       dni: user.dni,
       role: user.role,
     };
+  }
+
+  @Patch(':id/diet')
+  async updateDiet(@Param('id') id: string, @Body() dietData: any) {
+    return this.usersService.updateDiet(id, dietData);
   }
 }

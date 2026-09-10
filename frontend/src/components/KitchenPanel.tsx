@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Container, Title, Paper, Button, Group, Text, TextInput, SimpleGrid, Card } from '@mantine/core';
+import { Container, Title, Paper, Button, Group, Text, TextInput, SimpleGrid, Card, Accordion,Badge } from '@mantine/core';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { api } from '../services/api';
 
@@ -15,11 +15,14 @@ export default function KitchenPanel({ onLogout }: KitchenPanelProps) {
   const [showCamera, setShowCamera] = useState(false);
 
   useEffect(() => {
-    // Pedimos las fichas solo para calcular los totales de cocina
-    api.get('/meals/admin/all')
-      .then(res => setSubmissions(res.data))
-      .catch(err => console.error("Error cargando datos", err));
-  }, []);
+      // ¡Volvemos a poner admin/all para que coincida con tu backend!
+      api.get('/meals/admin/all')
+        .then(res => {
+          console.log("Datos recibidos del backend:", res.data); // Añadimos el chivato
+          setSubmissions(res.data);
+        })
+        .catch(err => console.error("Error cargando datos", err));
+    }, []);
 
   const handleScan = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,16 +52,47 @@ export default function KitchenPanel({ onLogout }: KitchenPanelProps) {
     }
   };
 
-  const mealTotals = submissions.reduce((totales, sub) => {
-    if (sub.selection.fridayDinner) totales.fridayDinner++;
-    if (sub.selection.saturdayLunch) totales.saturdayLunch++;
-    if (sub.selection.saturdayDinner) totales.saturdayDinner++;
-    if (sub.selection.sundayLunch) totales.sundayLunch++;
-    if (sub.selection.sundayDinner) totales.sundayDinner++;
-    return totales;
+// Función auxiliar para inicializar los contadores a 0
+  const defaultStats = () => ({ total: 0, estandar: 0, vegano: 0, celiaco: 0, lactosa: 0 });
+
+  const mealTotals = submissions.reduce((acc, sub) => {
+    const user = sub.user || {};
+    const isEstandar = !user.isVegan && !user.isCeliac && !user.lactoseIntolerant;
+
+    // Función auxiliar para contar las dietas de una comida concreta
+    const countMeal = (mealKey: string) => {
+      if (sub.selection && sub.selection[mealKey]) {
+        acc[mealKey].total++;
+        if (isEstandar) acc[mealKey].estandar++;
+        if (user.isVegan) acc[mealKey].vegano++;
+        if (user.isCeliac) acc[mealKey].celiaco++;
+        if (user.lactoseIntolerant) acc[mealKey].lactosa++;
+      }
+    };
+
+    countMeal('fridayDinner');
+    countMeal('saturdayLunch');
+    countMeal('saturdayDinner');
+    countMeal('sundayLunch');
+    countMeal('sundayDinner');
+
+    return acc;
   }, {
-    fridayDinner: 0, saturdayLunch: 0, saturdayDinner: 0, sundayLunch: 0, sundayDinner: 0
+    fridayDinner: defaultStats(),
+    saturdayLunch: defaultStats(),
+    saturdayDinner: defaultStats(),
+    sundayLunch: defaultStats(),
+    sundayDinner: defaultStats()
   });
+
+  // Configuración de los paneles para no repetir código visual
+  const mealsConfig = [
+    { key: 'fridayDinner', label: 'Viernes - Cena', color: 'blue' },
+    { key: 'saturdayLunch', label: 'Sábado - Comida', color: 'orange' },
+    { key: 'saturdayDinner', label: 'Sábado - Cena', color: 'orange' },
+    { key: 'sundayLunch', label: 'Domingo - Comida', color: 'teal' },
+    { key: 'sundayDinner', label: 'Domingo - Cena', color: 'teal' },
+  ];
 
   return (
     <Container size="lg" my={40}>
@@ -121,28 +155,52 @@ export default function KitchenPanel({ onLogout }: KitchenPanelProps) {
 
       {/* RESUMEN DE RACIONES */}
       <Title order={4} mb="md">Previsión de Raciones Totales</Title>
-      <SimpleGrid cols={{ base: 2, sm: 3, md: 5 }} mb="xl">
-        <Card withBorder radius="md" p="md" bg="blue.0">
-          <Text size="xs" c="dimmed" tt="uppercase" fw={700}>Viernes - Cena</Text>
-          <Text size="xl" fw={900} c="blue.7">{mealTotals.fridayDinner}</Text>
-        </Card>
-        <Card withBorder radius="md" p="md" bg="orange.0">
-          <Text size="xs" c="dimmed" tt="uppercase" fw={700}>Sábado - Comida</Text>
-          <Text size="xl" fw={900} c="orange.7">{mealTotals.saturdayLunch}</Text>
-        </Card>
-        <Card withBorder radius="md" p="md" bg="orange.0">
-          <Text size="xs" c="dimmed" tt="uppercase" fw={700}>Sábado - Cena</Text>
-          <Text size="xl" fw={900} c="orange.7">{mealTotals.saturdayDinner}</Text>
-        </Card>
-        <Card withBorder radius="md" p="md" bg="teal.0">
-          <Text size="xs" c="dimmed" tt="uppercase" fw={700}>Domingo - Comida</Text>
-          <Text size="xl" fw={900} c="teal.7">{mealTotals.sundayLunch}</Text>
-        </Card>
-        <Card withBorder radius="md" p="md" bg="teal.0">
-          <Text size="xs" c="dimmed" tt="uppercase" fw={700}>Domingo - Cena</Text>
-          <Text size="xl" fw={900} c="teal.7">{mealTotals.sundayDinner}</Text>
-        </Card>
-      </SimpleGrid>
+      <Accordion variant="separated" radius="md" mb="xl">
+        {mealsConfig.map((meal) => {
+          // Extraemos los datos calculados para esta comida específica
+          const stats = mealTotals[meal.key as keyof typeof mealTotals];
+          
+          return (
+            <Accordion.Item key={meal.key} value={meal.key}>
+              <Accordion.Control>
+                <Group justify="space-between" pr="md">
+                  <Text fw={700} size="lg">{meal.label}</Text>
+                  <Badge size="lg" color={meal.color} variant="light">
+                    {stats.total} raciones totales
+                  </Badge>
+                </Group>
+              </Accordion.Control>
+              
+              <Accordion.Panel>
+                <SimpleGrid cols={{ base: 2, sm: 4 }} mt="sm">
+                  <Card withBorder padding="sm" radius="md" bg="gray.0">
+                    <Text size="xs" c="dimmed" tt="uppercase" fw={700}>🍽️ Estándar</Text>
+                    <Text size="xl" fw={900}>{stats.estandar}</Text>
+                  </Card>
+                  
+                  {/* Cambiado bg="green.50" por bg="green.0" */}
+                  <Card withBorder padding="sm" radius="md" bg="green.0">
+                    <Text size="xs" c="dimmed" tt="uppercase" fw={700}>🌱 Vegano</Text>
+                    <Text size="xl" fw={900} c="green.9">{stats.vegano}</Text>
+                  </Card>
+                  
+                  {/* Cambiado bg="yellow.50" por bg="yellow.0" */}
+                  <Card withBorder padding="sm" radius="md" bg="yellow.0">
+                    <Text size="xs" c="dimmed" tt="uppercase" fw={700}>🌾 Sin Gluten</Text>
+                    <Text size="xl" fw={900} c="yellow.9">{stats.celiaco}</Text>
+                  </Card>
+                  
+                  {/* Cambiado bg="blue.50" por bg="blue.0" */}
+                  <Card withBorder padding="sm" radius="md" bg="blue.0">
+                    <Text size="xs" c="dimmed" tt="uppercase" fw={700}>🥛 Sin Lactosa</Text>
+                    <Text size="xl" fw={900} c="blue.9">{stats.lactosa}</Text>
+                  </Card>
+                </SimpleGrid>
+              </Accordion.Panel>
+            </Accordion.Item>
+          );
+        })}
+      </Accordion>
     </Container>
   );
 }

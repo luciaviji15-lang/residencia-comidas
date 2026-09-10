@@ -27,6 +27,24 @@ export class User {
   })
   role: UserRole;
 
+  @Column({ default: false })
+  isVegan: boolean;
+
+  @Column({ default: false })
+  isCeliac: boolean;
+
+  @Column({ default: false })
+  lactoseIntolerant: boolean;
+
+  @Column({ default: false })
+  eggAlergic: boolean;
+
+  @Column({ nullable: true })
+  allergiesInfo: string; 
+
+  @Column({ nullable: true })
+  avatarUrl: string; // Aquí guardaremos el enlace a su foto
+
   @CreateDateColumn()
   createdAt: Date;
 }

@@ -33,4 +33,25 @@ export class UsersService {
   async findByDni(dni: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { dni } });
   }
+
+  async updateDiet(id: string, dietData: any) {
+    // 1. EL CHIVATO: Vemos qué le está llegando de React
+    console.log(`🛠️ ACTUALIZANDO USUARIO: ${id}`);
+    console.log(`📦 DATOS RECIBIDOS:`, dietData);
+
+    // 2. Guardamos en base de datos
+    await this.userRepository.update(id, {
+      isVegan: dietData.isVegan,
+      isCeliac: dietData.isCeliac,
+      lactoseIntolerant: dietData.lactoseIntolerant,
+      eggAlergic : dietData.eggAlergic
+ 
+    });
+
+    // 3. Comprobamos cómo se ha quedado realmente en la base de datos
+    const userUpdated = await this.userRepository.findOne({ where: { id } });
+    console.log(`✅ USUARIO TRAS GUARDAR:`, userUpdated);
+    
+    return userUpdated;
+  }
 }

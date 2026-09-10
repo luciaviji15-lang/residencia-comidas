@@ -20,20 +20,27 @@ export class AuthService {
   }
 
   async login(dni: string, pass: string) {
-    const user = await this.validateUser(dni, pass);
-    if (!user) {
-      throw new UnauthorizedException('DNI o contraseña incorrectos');
-    }
+      const user = await this.validateUser(dni, pass);
 
-    const payload = { sub: user.id, dni: user.dni, role: user.role };
-    return {
-      access_token: this.jwtService.sign(payload),
-      user: {
-        id: user.id,
-        dni: user.dni,
-        role: user.role,
-        roomNumber: user.roomNumber,
-      },
-    };
-  }
+      console.log("Usuario recuperado de la BD en el login:", user);
+      if (!user) {
+        throw new UnauthorizedException('DNI o contraseña incorrectos');
+      }
+
+      const payload = { sub: user.id, dni: user.dni, role: user.role };
+      return {
+        access_token: this.jwtService.sign(payload),
+        user: {
+          id: user.id,
+          dni: user.dni,
+          role: user.role,
+          roomNumber: user.roomNumber,
+          // ---> LA CLAVE: Dejamos pasar los nuevos campos <---
+          isVegan: user.isVegan,
+          isCeliac: user.isCeliac,
+          lactoseIntolerant: user.lactoseIntolerant,
+          avatarUrl: user.avatarUrl,
+        },
+      };
+    }
 }
