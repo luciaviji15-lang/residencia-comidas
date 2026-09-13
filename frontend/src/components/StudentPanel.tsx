@@ -115,7 +115,7 @@ const handleSaveDiet = async () => {
         </Group>
 
         <Stack gap="xs" mt="sm">
-          <Text fz="h2" fw={900} lts={-0.5}>Alumno/a</Text>
+          
           
           <Group gap="xs">
             <Badge color="dark" size="sm" variant="transparent" pl={0}>
@@ -176,7 +176,7 @@ const handleSaveDiet = async () => {
       {/* Formulario de Selección de Comidas */}
       <Paper withBorder shadow="md" p={30} radius="md" mb="xl">
         <Title order={3} mb="md">Selección de Comidas</Title>
-        <Text size="xs" c="dimmed" mb="xl">Recuerda que el plazo límite para modificar las comidas finaliza el miércoles a las 00:00.</Text>
+        <Text size="xs" c="dimmed" mb="xl">El plazo límite para modificar las comidas finaliza el jueves a las 00:00.</Text>
 
         {error && <Notification color="red" mb="md" onClose={() => setError('')}>{error}</Notification>}
         {successMessage && <Notification color="green" mb="md" onClose={() => setSuccessMessage('')}>{successMessage}</Notification>}
@@ -209,14 +209,14 @@ const handleSaveDiet = async () => {
               onChange={(e) => setSelection({ ...selection, sundayDinner: e.currentTarget.checked })} 
             />
 
-            <Button type="submit" mt="md">Guardar Selección</Button>
+            <Button type="submit" mt="md">Guardar Comidas</Button>
           </Stack>
         </form>
 
         {/* QR Code */}
         {qrToken && (
           <Paper mt="xl" p="lg" bg="gray.0" radius="md" withBorder>
-            <Title order={4} ta="center" mb="md">Tu Pase de Comedor 🎫</Title>
+            <Title order={4} ta="center" mb="md">Pase para Comedor</Title>
             <Group justify="center" mb="md">
               <QRCodeSVG 
                 value={qrToken} 
@@ -226,7 +226,7 @@ const handleSaveDiet = async () => {
                 level={"H"} 
               />
             </Group>
-            <Text ta="center" size="xs" c="dimmed" tt="uppercase">Código manual (en caso de fallo del lector)</Text>
+            <Text ta="center" size="xs" c="dimmed" tt="uppercase">Código manual</Text>
             <Text ta="center" size="sm" ff="monospace" fw={600}>{qrToken}</Text>
           </Paper>
         )}

@@ -8,13 +8,12 @@ import { AuthModule } from './auth/auth.module.js';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'residencia',
-      autoLoadEntities: true, // Esto carga automáticamente las entidades que tengas en los módulos
-      synchronize: true,     // Crea las tablas en la BD automáticamente
+      url: 'postgresql://postgres.tyetcudedinqqzcdimkx:confiaEstrellaDorada@aws-0-eu-central-1.pooler.supabase.com:6543/postgres',
+      autoLoadEntities: true,
+      synchronize: true,
+      ssl: {
+        rejectUnauthorized: false, // 👈 Esto desactiva el bloqueo del certificado
+      },
     }),
     UsersModule,
     MealsModule,

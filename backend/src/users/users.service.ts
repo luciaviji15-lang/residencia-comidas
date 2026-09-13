@@ -35,8 +35,7 @@ export class UsersService {
   }
 
   async updateDiet(id: string, dietData: any) {
-      console.log(`🛠️ ACTUALIZANDO USUARIO: ${id}`);
-      console.log(`📦 DATOS RECIBIDOS:`, dietData);
+      console.log(` nuevos datos del usuario:`, dietData);
 
       await this.userRepository.update(id, {
         isVegan: dietData.isVegan,
@@ -47,7 +46,7 @@ export class UsersService {
       });
 
       const userUpdated = await this.userRepository.findOne({ where: { id } });
-      console.log(`✅ USUARIO TRAS GUARDAR:`, userUpdated);
+
       
       return userUpdated;
     }

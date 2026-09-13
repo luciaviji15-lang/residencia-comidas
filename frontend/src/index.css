@@ -51,19 +51,19 @@
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
+  padding: 12px; /* Espacio para que en el móvil no pegue con los bordes */
+  box-sizing: border-box;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
 }
 
 body {
-  background-image: linear-gradient(rgba(250, 249, 248, 0.9), rgba(250, 249, 248, 0.9)), url('/resi.jpg');
+
+  background-image: linear-gradient(rgba(250, 249, 248, 0.8), rgba(250, 249, 248, 0.6)), url('/resi.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -116,17 +116,6 @@ code {
 }
 
 
-body {
-  background-color: #faf9f8;
-  background-image: 
-    radial-gradient(at 80% 0%, hsla(28, 100%, 74%, 0.15) 0px, transparent 50%),
-    radial-gradient(at 0% 50%, hsla(355, 100%, 93%, 0.3) 0px, transparent 50%);
-  background-attachment: fixed;
-  margin: 0;
-  min-height: 100vh;
-}
-
-/* 2. Tarjetas con efecto Cristal (Glassmorphism) */
 .tarjeta-app {
   border: none !important;
   box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.08) !important;
@@ -136,23 +125,22 @@ body {
   -webkit-backdrop-filter: blur(12px); /* Para que funcione en Safari/iPhone */
 }
 
-/* Efecto de elevación al pasar el ratón por las tarjetas */
+
 .tarjeta-app:hover {
   transform: translateY(-5px);
   box-shadow: 0 20px 40px -15px rgba(255, 140, 0, 0.2) !important;
 }
 
-/* 3. Portada de la tarjeta de perfil del alumno */
+
 .portada-perfil {
   height: 120px;
-  /* Un degradado moderno y apetecible */
+
   background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
-  /* Los márgenes negativos son para que la foto llegue hasta los bordes ignorando el padding de la tarjeta */
   margin: -24px -24px 0 -24px; 
   border-radius: 24px 24px 0 0;
 }
 
-/* 4. Estilos para hacer el marco del escáner más estético (opcional) */
+
 .escaner-marco {
   border-radius: 16px;
   overflow: hidden;

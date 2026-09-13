@@ -98,8 +98,8 @@ export default function KitchenPanel({ onLogout }: KitchenPanelProps) {
     <Container size="lg" my={40}>
       <Group justify="space-between" mb="lg">
         <div>
-          <Title order={2}>Panel de Cocina 🧑‍🍳</Title>
-          <Text c="dimmed">Control de acceso y previsión de raciones</Text>
+          <Title order={2}>Área de Cocina </Title>
+          <Text c="dimmed">Control de acceso y de raciones</Text>
         </div>
         <Button color="red" variant="outline" onClick={onLogout}>Cerrar sesión</Button>
       </Group>
@@ -132,8 +132,8 @@ export default function KitchenPanel({ onLogout }: KitchenPanelProps) {
         <form onSubmit={handleScan}>
           <Group align="flex-end">
             <TextInput 
-              label="Pistola QR / Código manual" 
-              placeholder="Haz clic aquí y escanea..." 
+              label=" Código manual" 
+              placeholder="Introduce el código de alumno..." 
               value={qrInput}
               onChange={(e) => setQrInput(e.target.value)}
               style={{ flex: 1 }}
@@ -154,7 +154,7 @@ export default function KitchenPanel({ onLogout }: KitchenPanelProps) {
       </Paper>
 
       {/* RESUMEN DE RACIONES */}
-      <Title order={4} mb="md">Previsión de Raciones Totales</Title>
+      <Title order={4} mb="md">Raciones Totales</Title>
       <Accordion variant="separated" radius="md" mb="xl">
         {mealsConfig.map((meal) => {
           // Extraemos los datos calculados para esta comida específica
@@ -174,25 +174,25 @@ export default function KitchenPanel({ onLogout }: KitchenPanelProps) {
               <Accordion.Panel>
                 <SimpleGrid cols={{ base: 2, sm: 4 }} mt="sm">
                   <Card withBorder padding="sm" radius="md" bg="gray.0">
-                    <Text size="xs" c="dimmed" tt="uppercase" fw={700}>🍽️ Estándar</Text>
+                    <Text size="xs" c="dimmed" tt="uppercase" fw={700}>Estándar</Text>
                     <Text size="xl" fw={900}>{stats.estandar}</Text>
                   </Card>
                   
                   {/* Cambiado bg="green.50" por bg="green.0" */}
                   <Card withBorder padding="sm" radius="md" bg="green.0">
-                    <Text size="xs" c="dimmed" tt="uppercase" fw={700}>🌱 Vegano</Text>
+                    <Text size="xs" c="dimmed" tt="uppercase" fw={700}>Vegano</Text>
                     <Text size="xl" fw={900} c="green.9">{stats.vegano}</Text>
                   </Card>
                   
                   {/* Cambiado bg="yellow.50" por bg="yellow.0" */}
                   <Card withBorder padding="sm" radius="md" bg="yellow.0">
-                    <Text size="xs" c="dimmed" tt="uppercase" fw={700}>🌾 Sin Gluten</Text>
+                    <Text size="xs" c="dimmed" tt="uppercase" fw={700}>Sin Gluten</Text>
                     <Text size="xl" fw={900} c="yellow.9">{stats.celiaco}</Text>
                   </Card>
                   
                   {/* Cambiado bg="blue.50" por bg="blue.0" */}
                   <Card withBorder padding="sm" radius="md" bg="blue.0">
-                    <Text size="xs" c="dimmed" tt="uppercase" fw={700}>🥛 Sin Lactosa</Text>
+                    <Text size="xs" c="dimmed" tt="uppercase" fw={700}>Sin Lactosa</Text>
                     <Text size="xl" fw={900} c="blue.9">{stats.lactosa}</Text>
                   </Card>
                 </SimpleGrid>

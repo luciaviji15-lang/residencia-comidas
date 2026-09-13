@@ -22,7 +22,7 @@ export class AuthService {
   async login(dni: string, pass: string) {
       const user = await this.validateUser(dni, pass);
 
-      console.log("Usuario recuperado de la BD en el login:", user);
+      console.log("Asi es el usuario que acabamos de cojer de la bd:", user);
       if (!user) {
         throw new UnauthorizedException('DNI o contraseña incorrectos');
       }

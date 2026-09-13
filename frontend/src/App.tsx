@@ -54,7 +54,7 @@ export default function App() {
     return (
       <Container size={420} my={40}>
         <Title ta="center" fw={700}>Residencia Universitaria Santo Tomás de Aquino</Title>
-        <Text c="dimmed" size="sm" ta="center" mt={5}>Gestión de las Comidas del Fin de Semana</Text>
+        <Text c="dark.9" size="sm" ta="center" mt={6}  >Gestión de las Comidas del Fin de Semana</Text>
 
         <Paper withBorder shadow="md" p={30} mt={30} radius="md">
           <form onSubmit={handleLogin}>

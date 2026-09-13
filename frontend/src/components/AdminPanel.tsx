@@ -129,13 +129,12 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
     <Container size="lg" my={40}>
       <Group justify="space-between" mb="lg">
         <div>
-          <Title order={2}>Panel de Dirección</Title>
-          <Text c="dimmed">Gestión de menús y exportación a cocina (Semana: <Badge size="lg">{latestWeekId || 'Cargando...'}</Badge>)</Text>
+          <Title order={1}>Area de Dirección</Title>
+          <Text c="dimmed">Información de menús y exportación para cocina (Semana: <Badge size="lg">{latestWeekId || 'Cargando...'}</Badge>)</Text>
         </div>
         <Button color="red" variant="outline" onClick={onLogout}>Cerrar sesión</Button>
       </Group>
 
-      {/* Los contadores ahora muestran EXCLUSIVAMENTE los datos de la semana actual */}
       <Title order={4} mb="md">Resumen Total para Cocina (Semana Actual)</Title>
       <SimpleGrid cols={{ base: 2, sm: 3, md: 5 }} mb="xl">
         <Card withBorder radius="md" p="md" bg="blue.0">
@@ -164,7 +163,6 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
         </Card>
       </SimpleGrid>
 
-      {/* La tabla principal ahora filtra los registros para ver solo los actuales */}
       <Paper withBorder shadow="md" p="md" radius="md">
         <Group justify="space-between" mb="md">
           <Title order={4}>Fichas de la Semana ({currentWeekSubmissions.length})</Title>
@@ -174,14 +172,14 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
               variant="default" 
               onClick={() => downloadCSV(false)}
             >
-              Descargar Histórico Completo
+              Descargar Historial
             </Button>
             <Button 
               variant="gradient" 
               gradient={{ from: 'teal', to: 'green' }} 
               onClick={() => downloadCSV(true)}
             >
-              📊 CSV Semana Actual
+              CSV Semana Actual
             </Button>
           </Group>
         </Group>
