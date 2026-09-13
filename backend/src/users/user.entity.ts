@@ -43,8 +43,11 @@ export class User {
   allergiesInfo: string; 
 
   @Column({ nullable: true })
-  avatarUrl: string; // Aquí guardaremos el enlace a su foto
+  avatarUrl: string; 
 
   @CreateDateColumn()
   createdAt: Date;
+
+
+  
 }

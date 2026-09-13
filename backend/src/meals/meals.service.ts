@@ -35,25 +35,26 @@ export class MealsService {
 
     const weekId = this.getCurrentWeekId();
     
-    // Ahora buscamos si hay una ficha de ESTE usuario en ESTA semana
+    // CAMBIO 1: Buscamos dentro de la relación "user"
     let submission = await this.mealRepository.findOne({ 
-      where: { userId, weekId } 
+      where: { user: { id: userId }, weekId } 
     });
     
     const qrToken = crypto.randomBytes(16).toString('hex');
 
     if (submission) {
       submission.selection = selection;
-      submission.qrCodeToken = qrToken;
+      submission.qrCodeToken = qrToken; // Renovamos el QR por seguridad
     } else {
       submission = this.mealRepository.create({
-        userId,
-        weekId, // Guardamos la semana
+        user: { id: userId }, // CAMBIO 2: Lo asignamos como objeto relacionado
+        weekId, 
         selection,
         qrCodeToken: qrToken,
       });
     }
 
+    // Asegúrate de que tienes esto al final para que guarde los cambios en la BD
     return this.mealRepository.save(submission);
   }
 
@@ -83,4 +84,6 @@ export class MealsService {
 
     return submission;
   }
+
+  
 }

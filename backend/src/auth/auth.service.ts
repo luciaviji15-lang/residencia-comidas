@@ -35,7 +35,7 @@ export class AuthService {
           dni: user.dni,
           role: user.role,
           roomNumber: user.roomNumber,
-          // ---> LA CLAVE: Dejamos pasar los nuevos campos <---
+          eggAlergic : user.eggAlergic,
           isVegan: user.isVegan,
           isCeliac: user.isCeliac,
           lactoseIntolerant: user.lactoseIntolerant,

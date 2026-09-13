@@ -35,23 +35,22 @@ export class UsersService {
   }
 
   async updateDiet(id: string, dietData: any) {
-    // 1. EL CHIVATO: Vemos qué le está llegando de React
-    console.log(`🛠️ ACTUALIZANDO USUARIO: ${id}`);
-    console.log(`📦 DATOS RECIBIDOS:`, dietData);
+      console.log(`🛠️ ACTUALIZANDO USUARIO: ${id}`);
+      console.log(`📦 DATOS RECIBIDOS:`, dietData);
 
-    // 2. Guardamos en base de datos
-    await this.userRepository.update(id, {
-      isVegan: dietData.isVegan,
-      isCeliac: dietData.isCeliac,
-      lactoseIntolerant: dietData.lactoseIntolerant,
-      eggAlergic : dietData.eggAlergic
- 
-    });
+      await this.userRepository.update(id, {
+        isVegan: dietData.isVegan,
+        isCeliac: dietData.isCeliac,
+        lactoseIntolerant: dietData.lactoseIntolerant,
+        eggAlergic: dietData.eggAlergic,
+        avatarUrl: dietData.avatarUrl
+      });
 
-    // 3. Comprobamos cómo se ha quedado realmente en la base de datos
-    const userUpdated = await this.userRepository.findOne({ where: { id } });
-    console.log(`✅ USUARIO TRAS GUARDAR:`, userUpdated);
-    
-    return userUpdated;
-  }
+      const userUpdated = await this.userRepository.findOne({ where: { id } });
+      console.log(`✅ USUARIO TRAS GUARDAR:`, userUpdated);
+      
+      return userUpdated;
+    }
+
+
 }

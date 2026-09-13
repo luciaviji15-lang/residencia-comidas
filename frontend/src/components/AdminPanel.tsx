@@ -16,8 +16,14 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
       .catch(err => console.error("Error cargando datos del admin", err));
   }, []);
 
-  // Calculamos los totales sumando las selecciones
-  const mealTotals = submissions.reduce((totales, sub) => {
+  // 1. Identificamos cuál es la semana más reciente (la actual)
+  const latestWeekId = submissions.reduce((max, sub) => (sub.weekId > max ? sub.weekId : max), "");
+
+  // 2. Filtramos para que la pantalla principal SOLO muestre la semana actual
+  const currentWeekSubmissions = submissions.filter(sub => sub.weekId === latestWeekId);
+
+  // 3. Calculamos los totales exclusivamente con la semana actual
+  const mealTotals = currentWeekSubmissions.reduce((totales, sub) => {
     if (sub.selection.fridayDinner) totales.fridayDinner++;
     if (sub.selection.saturdayLunch) totales.saturdayLunch++;
     if (sub.selection.saturdayDinner) totales.saturdayDinner++;
@@ -32,32 +38,88 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
     sundayDinner: 0
   });
 
-  // Función mágica que convierte los datos en un archivo CSV y lo descarga
-  const downloadCSV = () => {
-    // 1. Cabeceras del Excel
-    let csvContent = "Semana,DNI,Habitacion,Viernes Cena,Sabado Comida,Sabado Cena,Domingo Comida,Domingo Cena\n";
+  const downloadCSV = (onlyCurrentWeek: boolean = false) => {
+    const dataToExport = onlyCurrentWeek 
+      ? currentWeekSubmissions
+      : submissions;
 
-    // 2. Rellenar las filas
-    submissions.forEach(sub => {
+    if (dataToExport.length === 0) {
+      alert("No hay datos para exportar.");
+      return;
+    }
+
+    let csvContent = "Semana,DNI,Habitacion,Viernes Cena,Sabado Comida,Sabado Cena,Domingo Comida,Domingo Cena,Vegano,Sin Gluten,Sin Lactosa,Sin Huevo\n";
+
+    const resumen = {
+      viernesCena: 0, sabadoComida: 0, sabadoCena: 0, domingoComida: 0, domingoCena: 0
+    };
+    
+    const resumenDietas: Record<string, number> = {};
+
+    dataToExport.forEach(sub => {
+      const u = sub.user || {};
+      
+      if (sub.selection.fridayDinner) resumen.viernesCena++;
+      if (sub.selection.saturdayLunch) resumen.sabadoComida++;
+      if (sub.selection.saturdayDinner) resumen.sabadoCena++;
+      if (sub.selection.sundayLunch) resumen.domingoComida++;
+      if (sub.selection.sundayDinner) resumen.domingoCena++;
+
+      const pideComida = sub.selection.fridayDinner || sub.selection.saturdayLunch || sub.selection.saturdayDinner || sub.selection.sundayLunch || sub.selection.sundayDinner;
+      
+      if (pideComida) {
+        let perfilArray = [];
+        if (u.isVegan) perfilArray.push("Vegano");
+        if (u.isCeliac) perfilArray.push("Sin Gluten");
+        if (u.lactoseIntolerant) perfilArray.push("Sin Lactosa");
+        if (u.eggAlergic) perfilArray.push("Sin Huevo");
+        
+        let nombrePerfil = perfilArray.length > 0 ? perfilArray.join(" + ") : "Estándar";
+        resumenDietas[nombrePerfil] = (resumenDietas[nombrePerfil] || 0) + 1;
+      }
+
       const row = [
         sub.weekId,
-        sub.user?.dni || 'Sin DNI',
-        sub.user?.roomNumber || 'N/D',
+        u.dni || 'Sin DNI',
+        u.roomNumber || 'N/D',
         sub.selection.fridayDinner ? 'SI' : 'NO',
         sub.selection.saturdayLunch ? 'SI' : 'NO',
         sub.selection.saturdayDinner ? 'SI' : 'NO',
         sub.selection.sundayLunch ? 'SI' : 'NO',
-        sub.selection.sundayDinner ? 'SI' : 'NO'
+        sub.selection.sundayDinner ? 'SI' : 'NO',
+        u.isVegan ? 'SI' : 'NO',
+        u.isCeliac ? 'SI' : 'NO',
+        u.lactoseIntolerant ? 'SI' : 'NO',
+        u.eggAlergic ? 'SI' : 'NO'
       ];
       csvContent += row.join(",") + "\n";
     });
 
-    // 3. Crear el archivo y forzar la descarga en el navegador
+    csvContent += "\n\n"; 
+    csvContent += "--- RESUMEN TOTAL DE RACIONES ---\n";
+    csvContent += "Turno,Total\n";
+    csvContent += `Viernes Cena,${resumen.viernesCena}\n`;
+    csvContent += `Sabado Comida,${resumen.sabadoComida}\n`;
+    csvContent += `Sabado Cena,${resumen.sabadoCena}\n`;
+    csvContent += `Domingo Comida,${resumen.domingoComida}\n`;
+    csvContent += `Domingo Cena,${resumen.domingoCena}\n`;
+    
+    csvContent += "\n";
+    csvContent += "--- PERFILES DE DIETA ESPECIAL (Alumnos que comen) ---\n";
+    csvContent += "Perfil,Total Alumnos\n";
+    
+    Object.entries(resumenDietas).forEach(([perfil, cantidad]) => {
+      if (perfil !== "Estándar") {
+        csvContent += `${perfil},${cantidad}\n`;
+      }
+    });
+
+    const prefix = onlyCurrentWeek ? `menus_${latestWeekId}` : `historico_completo`;
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
-    link.setAttribute("download", `comidas_residencia_${new Date().toLocaleDateString()}.csv`);
+    link.setAttribute("download", `${prefix}_${new Date().toLocaleDateString()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -68,13 +130,13 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
       <Group justify="space-between" mb="lg">
         <div>
           <Title order={2}>Panel de Dirección</Title>
-          <Text c="dimmed">Gestión de menús y exportación a cocina</Text>
+          <Text c="dimmed">Gestión de menús y exportación a cocina (Semana: <Badge size="lg">{latestWeekId || 'Cargando...'}</Badge>)</Text>
         </div>
         <Button color="red" variant="outline" onClick={onLogout}>Cerrar sesión</Button>
       </Group>
 
-      {/* ---> NUEVO BLOQUE DE RESUMEN PARA COCINA <--- */}
-      <Title order={4} mb="md">Resumen Total para Cocina</Title>
+      {/* Los contadores ahora muestran EXCLUSIVAMENTE los datos de la semana actual */}
+      <Title order={4} mb="md">Resumen Total para Cocina (Semana Actual)</Title>
       <SimpleGrid cols={{ base: 2, sm: 3, md: 5 }} mb="xl">
         <Card withBorder radius="md" p="md" bg="blue.0">
           <Text size="xs" c="dimmed" tt="uppercase" fw={700}>Viernes - Cena</Text>
@@ -101,15 +163,27 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
           <Text size="xl" fw={900} c="teal.7">{mealTotals.sundayDinner} raciones</Text>
         </Card>
       </SimpleGrid>
-      {/* ------------------------------------------- */}
 
-      {/* Aquí debajo ya va tu <Paper> con la tabla y el botón de CSV que ya tenías */}
+      {/* La tabla principal ahora filtra los registros para ver solo los actuales */}
       <Paper withBorder shadow="md" p="md" radius="md">
         <Group justify="space-between" mb="md">
-          <Title order={4}>Fichas Recibidas ({submissions.length})</Title>
-          <Button color="green" onClick={downloadCSV}>
-            Descargar Excel (CSV)
-          </Button>
+          <Title order={4}>Fichas de la Semana ({currentWeekSubmissions.length})</Title>
+          
+          <Group>
+            <Button 
+              variant="default" 
+              onClick={() => downloadCSV(false)}
+            >
+              Descargar Histórico Completo
+            </Button>
+            <Button 
+              variant="gradient" 
+              gradient={{ from: 'teal', to: 'green' }} 
+              onClick={() => downloadCSV(true)}
+            >
+              📊 CSV Semana Actual
+            </Button>
+          </Group>
         </Group>
 
         <Table striped highlightOnHover>
@@ -126,7 +200,7 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {submissions.map((sub) => (
+            {currentWeekSubmissions.map((sub) => (
               <Table.Tr key={sub.id}>
                 <Table.Td><Badge>{sub.weekId}</Badge></Table.Td>
                 <Table.Td fw={500}>{sub.user?.dni}</Table.Td>

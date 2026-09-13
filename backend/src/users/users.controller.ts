@@ -29,8 +29,12 @@ export class UsersController {
     };
   }
 
-  @Patch(':id/diet')
-  async updateDiet(@Param('id') id: string, @Body() dietData: any) {
-    return this.usersService.updateDiet(id, dietData);
+ @Patch(':id/diet')
+  async updateDiet(@Param('id') id: string, @Body() body: any) {
+    // Usamos la función updateDiet que me pasaste antes en tu servicio
+    return this.usersService.updateDiet(id, body); 
   }
+
+
+
 }
