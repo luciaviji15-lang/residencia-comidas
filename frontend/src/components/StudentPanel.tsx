@@ -38,22 +38,35 @@ export default function StudentPanel({ user, onLogout }: StudentPanelProps) {
   const [history, setHistory] = useState<any[]>([]);
 
   // Cargar el historial y la última selección al abrir el panel
+// Cargar el historial y comprobar si ya hay ficha para la semana actual
   useEffect(() => {
     if (user && user.id) {
-      api.get(`/meals/history/${user.id}`)
+      // 1. Buscamos la ficha de la semana actual
+      api.get(`/meals/current/${user.id}`)
         .then(res => {
-          setHistory(res.data);
-          if (res.data && res.data.length > 0) {
-            setQrToken(res.data[0].qrCodeToken);
-            setSelection(res.data[0].selection);
+          if (res.data) {
+            setQrToken(res.data.qrCodeToken);
+            setSelection(res.data.selection);
+          } else {
+            // Si es lunes y no hay ficha, dejamos todo en blanco
+            setQrToken('');
+            setSelection({
+              fridayDinner: false,
+              saturdayLunch: false,
+              saturdayDinner: false,
+              sundayLunch: false,
+              sundayDinner: false,
+            });
           }
         })
-        .catch(err => {
-          console.error("Error al cargar historial:", err);
-        });
+        .catch(err => console.error("Error al cargar la ficha actual:", err));
+
+      // 2. Cargamos el historial completo para la lista de abajo
+      api.get(`/meals/history/${user.id}`)
+        .then(res => setHistory(res.data))
+        .catch(err => console.error("Error al cargar historial:", err));
     }
   }, [user, successMessage]);
-
 const handleSaveDiet = async () => {
     try {
       const userId = user.id || user.sub; 

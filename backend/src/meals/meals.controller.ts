@@ -29,4 +29,9 @@ export class MealsController {
   async validateQr(@Param('qrToken') qrToken: string) {
     return this.mealsService.validateQr(qrToken);
   }
+
+  @Get('current/:userId')
+  async getCurrentMeal(@Param('userId') userId: string) {
+    return this.mealsService.getCurrentSubmission(userId);
+  }
 }

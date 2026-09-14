@@ -25,13 +25,13 @@ export class MealsService {
     const dayOfWeek = now.getDay();
     const hours = now.getHours();
 
-    if (dayOfWeek > 3 || (dayOfWeek === 3 && hours >= 0)) {
+    if (dayOfWeek > 4 || (dayOfWeek === 4 && hours >= 0)) {
       throw new BadRequestException('El plazo de inscripción para este fin de semana está cerrado (Límite: Miércoles a las 00:00)');
     }
   }
 
   async submitMeal(userId: string, selection: any): Promise<MealSubmission> {
-    //this.checkDeadline(); para probar y jugar lo voy a quitar
+    this.checkDeadline(); 
 
     const weekId = this.getCurrentWeekId();
     
@@ -82,5 +82,12 @@ export class MealsService {
     return submission;
   }
 
+  async getCurrentSubmission(userId: string): Promise<MealSubmission | null> {
+    const weekId = this.getCurrentWeekId();
+    
+    return this.mealRepository.findOne({
+      where: { user: { id: userId }, weekId }
+    });
+  }
   
 }
