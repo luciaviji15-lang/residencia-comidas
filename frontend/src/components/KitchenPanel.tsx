@@ -98,7 +98,7 @@ export default function KitchenPanel({ onLogout }: KitchenPanelProps) {
     <Container size="lg" my={40}>
       <Group justify="space-between" mb="lg">
         <div>
-          <Title order={2}>Área de Cocina </Title>
+          <Title order={2} c="dark.9">Área de Cocina </Title>
           <Text c="dimmed">Control de acceso y de raciones</Text>
         </div>
         <Button color="red" variant="outline" onClick={onLogout}>Cerrar sesión</Button>

@@ -129,7 +129,7 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
     <Container size="lg" my={40}>
       <Group justify="space-between" mb="lg">
         <div>
-          <Title order={1}>Area de Dirección</Title>
+          <Title order={1} c="dark.9">Area de Dirección</Title>
           <Text c="dimmed">Información de menús y exportación para cocina (Semana: <Badge size="lg">{latestWeekId || 'Cargando...'}</Badge>)</Text>
         </div>
         <Button color="red" variant="outline" onClick={onLogout}>Cerrar sesión</Button>

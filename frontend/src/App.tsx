@@ -53,7 +53,7 @@ export default function App() {
   if (!token) {
     return (
       <Container size={420} my={40}>
-        <Title ta="center" fw={700}>Residencia Universitaria Santo Tomás de Aquino</Title>
+        <Title ta="center" fw={700} c = "dark.9">Residencia Universitaria Santo Tomás de Aquino</Title>
         <Text c="dark.9" size="sm" ta="center" mt={6}  >Gestión de las Comidas del Fin de Semana</Text>
 
         <Paper withBorder shadow="md" p={30} mt={30} radius="md">
