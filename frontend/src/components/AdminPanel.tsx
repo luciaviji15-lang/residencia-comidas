@@ -10,19 +10,15 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
   const [submissions, setSubmissions] = useState<any[]>([]);
 
   useEffect(() => {
-    // Pedimos todas las fichas de todos los alumnos
     api.get('/meals/admin/all')
       .then(res => setSubmissions(res.data))
       .catch(err => console.error("Error cargando datos del admin", err));
   }, []);
 
-  // 1. Identificamos cuál es la semana más reciente (la actual)
   const latestWeekId = submissions.reduce((max, sub) => (sub.weekId > max ? sub.weekId : max), "");
 
-  // 2. Filtramos para que la pantalla principal SOLO muestre la semana actual
-  const currentWeekSubmissions = submissions.filter(sub => sub.weekId === latestWeekId);
+  const currentWeekSubmissions = submissions.filter(sub => sub.weekId === latestWeekId); //Mostramos solo las comidas de esta semana
 
-  // 3. Calculamos los totales exclusivamente con la semana actual
   const mealTotals = currentWeekSubmissions.reduce((totales, sub) => {
     if (sub.selection.fridayDinner) totales.fridayDinner++;
     if (sub.selection.saturdayLunch) totales.saturdayLunch++;
@@ -38,7 +34,7 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
     sundayDinner: 0
   });
 
-  const downloadCSV = (onlyCurrentWeek: boolean = false) => {
+  const downloadCSV = (onlyCurrentWeek: boolean = false) => { //Crea el CSV resumen para exportarlo a cocina
     const dataToExport = onlyCurrentWeek 
       ? currentWeekSubmissions
       : submissions;
@@ -80,7 +76,7 @@ export default function AdminPanel({ onLogout }: AdminPanelProps) {
 
       const row = [
         sub.weekId,
-        u.dni || 'Sin DNI',
+        u.dni,
         u.roomNumber || 'N/D',
         sub.selection.fridayDinner ? 'SI' : 'NO',
         sub.selection.saturdayLunch ? 'SI' : 'NO',

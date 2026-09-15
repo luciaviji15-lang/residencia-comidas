@@ -12,8 +12,8 @@ export class MealsService {
   ) {}
 
   
-  private getCurrentWeekId(): string {
-    const now = new Date(); // La fecha real
+  private getCurrentWeekId(): string { //Calcular de cuando a cuando va la seamna actual
+    const now = new Date(); 
     const dayOfWeek = now.getDay();
    
     const distanceToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
@@ -34,7 +34,7 @@ export class MealsService {
     return `${formatDate(monday)} al ${formatDate(sunday)}`;
   }
 
-  private checkDeadline() { 
+  private checkDeadline() {  //Ver si el usuario esta rellenando la ficha antes del jueves
     const now = new Date();
     const dayOfWeek = now.getDay();
     const hours = now.getHours();
@@ -48,8 +48,8 @@ export class MealsService {
     }
   }
 
-  async submitMeal(userId: string, selection: any): Promise<MealSubmission> {
-    this.checkDeadline(); 
+  async submitMeal(userId: string, selection: any): Promise<MealSubmission> { //Crear una ficha
+    this.checkDeadline(); //Si se pasa del deadline no la puede crear
 
     const weekId = this.getCurrentWeekId();
     
@@ -80,14 +80,14 @@ export class MealsService {
     });
   }
 
-  async findAllSubmissions(): Promise<MealSubmission[]> {
+  async findAllSubmissions(): Promise<MealSubmission[]> { //Buscar todas las fichas creadas
     return this.mealRepository.find({
       relations: { user: true },
       order: { submittedAt: 'DESC' },
     });
   }
 
-  async validateQr(qrToken: string): Promise<MealSubmission> {
+  async validateQr(qrToken: string): Promise<MealSubmission> { //Comprobar el qr (cocina)
     const submission = await this.mealRepository.findOne({
       where: { qrCodeToken: qrToken },
       relations: { user: true }
@@ -100,7 +100,7 @@ export class MealsService {
     return submission;
   }
 
-  async getCurrentSubmission(userId: string): Promise<MealSubmission | null> {
+  async getCurrentSubmission(userId: string): Promise<MealSubmission | null> { //Para que aparezca la ficha de la semana actual si es que hay
     const weekId = this.getCurrentWeekId();
     
     return this.mealRepository.findOne({

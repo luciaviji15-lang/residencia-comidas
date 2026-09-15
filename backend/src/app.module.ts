@@ -12,7 +12,7 @@ import { AuthModule } from './auth/auth.module.js';
       autoLoadEntities: true,
       synchronize: true,
       ssl: {
-        rejectUnauthorized: false, // 👈 Esto desactiva el bloqueo del certificado
+        rejectUnauthorized: false, //no me dejaba por algo del certificado
       },
     }),
     UsersModule,

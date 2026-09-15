@@ -14,11 +14,10 @@ export default function KitchenPanel({ onLogout }: KitchenPanelProps) {
   const [scanError, setScanError] = useState('');
   const [showCamera, setShowCamera] = useState(false);
 
-  useEffect(() => {
-      // ¡Volvemos a poner admin/all para que coincida con tu backend!
+  useEffect(() => { //Carga las fichas enviadas
+    
       api.get('/meals/admin/all')
         .then(res => {
-          console.log("Datos recibidos del backend:", res.data); // Añadimos el chivato
           setSubmissions(res.data);
         })
         .catch(err => console.error("Error cargando datos", err));
@@ -85,7 +84,7 @@ export default function KitchenPanel({ onLogout }: KitchenPanelProps) {
     sundayDinner: defaultStats()
   });
 
-  // Configuración de los paneles para no repetir código visual
+  // Configuración de los paneles para no repetir color
   const mealsConfig = [
     { key: 'fridayDinner', label: 'Viernes - Cena', color: 'blue' },
     { key: 'saturdayLunch', label: 'Sábado - Comida', color: 'orange' },
@@ -104,16 +103,16 @@ export default function KitchenPanel({ onLogout }: KitchenPanelProps) {
         <Button color="red" variant="outline" onClick={onLogout}>Cerrar sesión</Button>
       </Group>
 
-      {/* ESCÁNER QR */}
+      
       <Paper withBorder shadow="sm" p="md" radius="md" mb="xl" bg="gray.0">
-        <Title order={4} mb="sm">Escáner de Cafetería 📷</Title>
+        <Title order={4} mb="sm">Escáner de Cafetería</Title>
         <Group mb="md">
           <Button 
             onClick={() => setShowCamera(!showCamera)} 
             color={showCamera ? 'red' : 'blue'} 
             variant="light"
           >
-            {showCamera ? 'Apagar Cámara ❌' : 'Activar Cámara del Móvil 📱'}
+            {showCamera ? 'Apagar Cámara' : 'Activar Cámara '}
           </Button>
         </Group>
 
@@ -148,13 +147,13 @@ export default function KitchenPanel({ onLogout }: KitchenPanelProps) {
           <Paper mt="md" p="md" radius="sm" bg="green.1" withBorder>
             <Text c="green.9" fw={900} size="lg">✅ ¡Pase Válido!</Text>
             <Text><b>Habitación:</b> {scanResult.user?.roomNumber || 'N/D'}</Text>
-            {/* Ocultamos el DNI por privacidad, cocina no lo necesita */}
+
           </Paper>
         )}
       </Paper>
 
-      {/* RESUMEN DE RACIONES */}
-      <Title order={4} mb="md">Raciones Totales</Title>
+
+      <Title order={4} mb="md">Raciones Totales</Title> {/*Resumen de las raciones totales que se piden*/}
       <Accordion variant="separated" radius="md" mb="xl">
         {mealsConfig.map((meal) => {
           // Extraemos los datos calculados para esta comida específica
@@ -178,19 +177,19 @@ export default function KitchenPanel({ onLogout }: KitchenPanelProps) {
                     <Text size="xl" fw={900}>{stats.estandar}</Text>
                   </Card>
                   
-                  {/* Cambiado bg="green.50" por bg="green.0" */}
+  
                   <Card withBorder padding="sm" radius="md" bg="green.0">
                     <Text size="xs" c="dimmed" tt="uppercase" fw={700}>Vegano</Text>
                     <Text size="xl" fw={900} c="green.9">{stats.vegano}</Text>
                   </Card>
                   
-                  {/* Cambiado bg="yellow.50" por bg="yellow.0" */}
+                 
                   <Card withBorder padding="sm" radius="md" bg="yellow.0">
                     <Text size="xs" c="dimmed" tt="uppercase" fw={700}>Sin Gluten</Text>
                     <Text size="xl" fw={900} c="yellow.9">{stats.celiaco}</Text>
                   </Card>
                   
-                  {/* Cambiado bg="blue.50" por bg="blue.0" */}
+           
                   <Card withBorder padding="sm" radius="md" bg="blue.0">
                     <Text size="xs" c="dimmed" tt="uppercase" fw={700}>Sin Lactosa</Text>
                     <Text size="xl" fw={900} c="blue.9">{stats.lactosa}</Text>

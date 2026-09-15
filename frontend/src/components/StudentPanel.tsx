@@ -40,14 +40,13 @@ export default function StudentPanel({ user, onLogout }: StudentPanelProps) {
 // Cargar el historial y comprobar si ya hay ficha para la semana actual
  useEffect(() => {
     if (user && user.id) {
-      // 1. Pedimos SOLO la ficha de esta semana para el QR y los checkboxes
-      api.get(`/meals/current/${user.id}`)
+
+      api.get(`/meals/current/${user.id}`) //Pedimos solo si esta la ficha de ESTA semana
         .then(res => {
           if (res.data) { // Si hay ficha de esta semana, la mostramos
             setQrToken(res.data.qrCodeToken);
             setSelection(res.data.selection);
           } else { 
-            // Si devuelve null (es lunes y no hay ficha), lo dejamos en blanco
             setQrToken('');
             setSelection({
               fridayDinner: false,
@@ -60,17 +59,18 @@ export default function StudentPanel({ user, onLogout }: StudentPanelProps) {
         })
         .catch(err => console.error("Error al cargar la ficha actual:", err));
 
-      // 2. Pedimos el historial solo para pintar la lista de abajo
-      api.get(`/meals/history/${user.id}`)
+
+      api.get(`/meals/history/${user.id}`) //Pedimos historial entero para ponerlo abajo de info
         .then(res => setHistory(res.data))
         .catch(err => console.error("Error al cargar historial:", err));
     }
-  }, [user, successMessage]); // Recuerda mantener estas dependencias
-const handleSaveDiet = async () => {
+  }, [user, successMessage]); 
+
+
+  const handleSaveDiet = async () => {
     try {
       const userId = user.id || user.sub; 
-      
-      // VOLVEMOS A USAR /diet AQUÍ
+
       const response = await api.patch(`/users/${userId}/diet`, diet);
       
       const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -92,7 +92,7 @@ const handleSaveDiet = async () => {
         userId: user.id,
         selection,
       });
-      setSuccessMessage('¡Ficha de fin de semana guardada con éxito!');
+      setSuccessMessage('¡Ficha de fin de semana guardada!');
       setQrToken(response.data.qrCodeToken);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al enviar la ficha');
@@ -101,7 +101,7 @@ const handleSaveDiet = async () => {
 
   return (
     <>
-      {/* Cabecera del Alumno (Perfil) */}
+      {/*Perfil alumno*/}
       <Card radius="xl" p="xl" className="tarjeta-app" mb="xl">
         <div className="portada-perfil" />
         <Avatar 
@@ -148,13 +148,12 @@ const handleSaveDiet = async () => {
               <Badge size="lg" color="gray" variant="light" radius="xl">🍽️ Dieta Estándar</Badge>
             )}
 
-            {/* Añade esto dentro del formulario del Modal */}
 
           </Group>
         </Stack>
       </Card>
 
-      {/* Menú Teórico del Fin de Semana */}
+      {/* Menú del Fin de Semana */}
       <Paper withBorder shadow="sm" p="md" radius="md" mb="xl">
         <Title order={4} mb="sm">Menú de este fin de semana</Title>
         <Table striped highlightOnHover>
@@ -185,7 +184,7 @@ const handleSaveDiet = async () => {
         </Table>
       </Paper>
 
-      {/* Formulario de Selección de Comidas */}
+      {/* Forms de selección de comidas */}
       <Paper withBorder shadow="md" p={30} radius="md" mb="xl">
         <Title order={3} mb="md">Selección de Comidas</Title>
         <Text size="xs" c="dimmed" mb="xl">El plazo límite para modificar las comidas finaliza el jueves a las 00:00.</Text>
@@ -225,7 +224,7 @@ const handleSaveDiet = async () => {
           </Stack>
         </form>
 
-        {/* QR Code */}
+        {/* codigo qr*/}
         {qrToken && (
           <Paper mt="xl" p="lg" bg="gray.0" radius="md" withBorder>
             <Title order={4} ta="center" mb="md">Pase para Comedor</Title>
@@ -274,7 +273,7 @@ const handleSaveDiet = async () => {
         )}
       </Paper>
 
-      {/* Modal para Editar Preferencias (Dietas) */}
+      {/*Modal para elegir otras alergias o intolerancias*/}
       <Modal opened={opened} onClose={close} title="Mis Preferencias Alimentarias" centered radius="md">
         <Stack>
           <Checkbox 
