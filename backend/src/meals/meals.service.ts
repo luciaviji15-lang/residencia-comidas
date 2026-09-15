@@ -13,16 +13,16 @@ export class MealsService {
 
   
   private getCurrentWeekId(): string {
-    const now = new Date(); 
+    const now = new Date(); // La fecha real
     const dayOfWeek = now.getDay();
+   
+    const distanceToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
     
-    const distanceToFriday = dayOfWeek === 0 ? -2 : 5 - dayOfWeek;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + distanceToMonday);
     
-    const friday = new Date(now);
-    friday.setDate(now.getDate() + distanceToFriday);
-    
-    const sunday = new Date(friday);
-    sunday.setDate(friday.getDate() + 2);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6); 
 
     const formatDate = (date: Date) => {
       const d = date.getDate().toString().padStart(2, '0');
@@ -31,8 +31,7 @@ export class MealsService {
       return `${d}/${m}/${y}`;
     };
 
-    // Esto devolverá por ejemplo: "18/09/2026 al 20/09/2026"
-    return `${formatDate(friday)} al ${formatDate(sunday)}`;
+    return `${formatDate(monday)} al ${formatDate(sunday)}`;
   }
 
   private checkDeadline() { 
