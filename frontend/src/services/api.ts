@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const api = axios.create({
  baseURL: '[https://residencia-back.onrender.com/](https://residencia-back.onrender.com/)',
-});
+} );
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
