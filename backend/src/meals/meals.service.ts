@@ -12,21 +12,40 @@ export class MealsService {
   ) {}
 
   
-  private getCurrentWeekId(): string { //Calcular semana actual
-    const now = new Date();
-    const startDate = new Date(now.getFullYear(), 0, 1);
-    const days = Math.floor((now.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000));
-    const weekNumber = Math.ceil(days / 7);
-    return `${now.getFullYear()}-W${weekNumber}`;
+  private getCurrentWeekId(): string {
+    const now = new Date(); 
+    const dayOfWeek = now.getDay();
+    
+    const distanceToFriday = dayOfWeek === 0 ? -2 : 5 - dayOfWeek;
+    
+    const friday = new Date(now);
+    friday.setDate(now.getDate() + distanceToFriday);
+    
+    const sunday = new Date(friday);
+    sunday.setDate(friday.getDate() + 2);
+
+    const formatDate = (date: Date) => {
+      const d = date.getDate().toString().padStart(2, '0');
+      const m = (date.getMonth() + 1).toString().padStart(2, '0');
+      const y = date.getFullYear();
+      return `${d}/${m}/${y}`;
+    };
+
+    // Esto devolverá por ejemplo: "18/09/2026 al 20/09/2026"
+    return `${formatDate(friday)} al ${formatDate(sunday)}`;
   }
 
-  private checkDeadline() { //Ver si el plazo se ha pasado para hacer la ficha
+  private checkDeadline() { 
     const now = new Date();
     const dayOfWeek = now.getDay();
     const hours = now.getHours();
 
+
     if (dayOfWeek > 4 || (dayOfWeek === 4 && hours >= 0)) {
-      throw new BadRequestException('El plazo de inscripción para este fin de semana está cerrado (Límite: Miércoles a las 00:00)');
+     
+      throw new BadRequestException('El plazo de inscripción para este fin de semana está cerrado (Límite: Jueves a las 00:00)');
+    } else {
+      console.log("Aún está en plazo.");
     }
   }
 

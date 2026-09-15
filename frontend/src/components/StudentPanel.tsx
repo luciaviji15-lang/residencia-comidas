@@ -37,18 +37,17 @@ export default function StudentPanel({ user, onLogout }: StudentPanelProps) {
   const [qrToken, setQrToken] = useState('');
   const [history, setHistory] = useState<any[]>([]);
 
-  // Cargar el historial y la última selección al abrir el panel
 // Cargar el historial y comprobar si ya hay ficha para la semana actual
-  useEffect(() => {
+ useEffect(() => {
     if (user && user.id) {
-      // 1. Buscamos la ficha de la semana actual
+      // 1. Pedimos SOLO la ficha de esta semana para el QR y los checkboxes
       api.get(`/meals/current/${user.id}`)
         .then(res => {
-          if (res.data) {
+          if (res.data) { // Si hay ficha de esta semana, la mostramos
             setQrToken(res.data.qrCodeToken);
             setSelection(res.data.selection);
-          } else {
-            // Si es lunes y no hay ficha, dejamos todo en blanco
+          } else { 
+            // Si devuelve null (es lunes y no hay ficha), lo dejamos en blanco
             setQrToken('');
             setSelection({
               fridayDinner: false,
@@ -61,12 +60,12 @@ export default function StudentPanel({ user, onLogout }: StudentPanelProps) {
         })
         .catch(err => console.error("Error al cargar la ficha actual:", err));
 
-      // 2. Cargamos el historial completo para la lista de abajo
+      // 2. Pedimos el historial solo para pintar la lista de abajo
       api.get(`/meals/history/${user.id}`)
         .then(res => setHistory(res.data))
         .catch(err => console.error("Error al cargar historial:", err));
     }
-  }, [user, successMessage]);
+  }, [user, successMessage]); // Recuerda mantener estas dependencias
 const handleSaveDiet = async () => {
     try {
       const userId = user.id || user.sub; 
